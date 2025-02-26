@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class GridManager : MonoBehaviour
 {
@@ -14,21 +15,18 @@ public class GridManager : MonoBehaviour
 
     [Space(5)]
     [Header("Grid Properties")]
-    [SerializeField] public float gridScale;
-    [SerializeField] public int gridWidth; 
-    [SerializeField] public int gridHeight; 
+    [SerializeField] public int gridWidth = 10; 
+    [SerializeField] public int gridHeight = 10;
 
-    [Space(5)]
-    [Header("Tile Prefab")]
-    [SerializeField] private GameObject tile;
+    [Space(20)]
+    [Header("Tilemap Settings")]
+    public Tilemap tilemap;
+    public TileBase emptyTile;
+    public List<TileBase> allTiles; // drag all the Tiles into editor here
 
-    [Space(5)]
-    [Header("Sprites")]
-    public List<Sprite> allSprites; // drag the 100 sliced sprites in editor
+    private TileData[,] grid;
 
-    public GameObject[,] grid { get; private set; }
-
-    private CameraController cc;
+    CameraController cc;
 
     private void Awake()
     {
@@ -42,173 +40,154 @@ public class GridManager : MonoBehaviour
         }
 
         cc = Camera.main.GetComponent<CameraController>();
-
-        InitializeGrid();
     }
 
     private void Start()
     {
-        // map building is a coroutine so it doesn't hang ur whole editor
         StartCoroutine(BuildMapCoroutine());
     }
 
-
-    public void InitializeGrid()
+    // this is the grid of tile metadata
+    // needed for WFC, maybe for resources and other gameplay
+    private void InitializeDataGrid()
     {
-        grid = new GameObject[gridWidth, gridHeight];
+        grid = new TileData[gridWidth, gridHeight];
 
-        for (int x = 0; x < gridWidth; x++)
-        {
-            for (int y = 0; y < gridHeight; y++)
-            {
-                GameObject newTile = Instantiate(tile, transform);
-                newTile.name = $"Tile {x}, {y}";
-                grid[x, y] = newTile;
-
-                Tile tileComponent = newTile.GetComponent<Tile>();
-                tileComponent.gridPos = new Vector2Int(x, y);
-                tileComponent.ResetTile();
-            }
-        }
-    }
-
-    public void DestroyGrid()
-    {
         for (int x = 0; x < grid.GetLength(0); x++)
         {
             for (int y = 0; y < grid.GetLength(1); y++)
             {
-                GameObject go = grid[x, y];
-                if (go != null)
-                {
-                    Destroy(go);
-                }
+                TileData tileData = new TileData(x, y);
+
+                grid[x, y] = tileData;
             }
         }
     }
-    public void ResetTiles()
+
+    // this is Unity's tilemap and renderer
+    // primarily for visuals
+    private void InitializeTilemap()
     {
+        tilemap.ClearAllTiles();
+
         for (int x = 0; x < grid.GetLength(0); x++)
         {
             for (int y = 0; y < grid.GetLength(1); y++)
             {
-                GameObject go = grid[x, y];
-                if (go != null)
+                tilemap.SetTile(new Vector3Int(x, y, 0), emptyTile);
+
+                TileData tileData = grid[x, y];
+                if (tileData != null)
                 {
-                    go.GetComponent<Tile>().ResetTile();
+                    tileData.SetName(emptyTile.name);
+                    tileData.SetQuadrantsFromName(emptyTile.name);
                 }
             }
         }
     }
 
-    private void CollapseRandom()
+    // collapsing means assigning a visual Tile
+    // and updating some metadata
+    private void CollapseTile(TileData tile)
     {
-        int randomX = Random.Range(0, grid.GetLength(0));
-        int randomY = Random.Range(0, grid.GetLength(1));
+        int posX = tile.gridPos.x;
+        int posY = tile.gridPos.y;
 
-        GameObject go = grid[randomX, randomY];
+        if (tile.isCollapsed) return;
 
-        go.GetComponent<Tile>().CollapseTile();
-        UpdateNeighbors(go);
+        TileBase tileImg = PickRandomTileBase(tile.validOptions);
+
+        tilemap.SetTile(new Vector3Int(posX, posY, 0), tileImg);
+
+        tile.SetName(tileImg.name);
+        tile.SetQuadrantsFromName(tileImg.name);
+        tile.isCollapsed = true;
     }
 
-    public void UpdateNeighbors(GameObject go)
+    // if cardinal neighbor(s) exist, update their entropy
+    public void UpdateNeighbors(TileData tile)
     {
-        Tile tile = go.GetComponent<Tile>();
-        SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
+        int posX = tile.gridPos.x;
+        int posY = tile.gridPos.y;
 
-        // neighbor will be null if at the bounds of grid
-        GameObject tileN = tile.gridPos.y < grid.GetLength(1)-1 ? grid[tile.gridPos.x, tile.gridPos.y + 1] : null;
-        GameObject tileE = tile.gridPos.x < grid.GetLength(0)-1 ? grid[tile.gridPos.x + 1, tile.gridPos.y] : null;
-        GameObject tileS = tile.gridPos.y > 0 ? grid[tile.gridPos.x, tile.gridPos.y - 1] : null;
-        GameObject tileW = tile.gridPos.x > 0 ? grid[tile.gridPos.x - 1, tile.gridPos.y] : null;
+        TileData tileN = posY < grid.GetLength(1) - 1 ? grid[posX, posY + 1] : null;
+        TileData tileE = posX < grid.GetLength(0) - 1 ? grid[posX + 1, posY] : null;
+        TileData tileS = posY > 0 ? grid[posX, posY - 1] : null;
+        TileData tileW = posX > 0 ? grid[posX - 1, posY] : null;
 
-        string spriteName = sr.sprite.name;
+        string tileName = tile.name;
 
-        // skip whole thing if key not found
-        if (!TileRuleLookup.TileRulesDictionary.ContainsKey(spriteName)) return;
+        // skip everything if this name isn't found in rules
+        if (!TileRuleLookup.TileRulesDictionary.ContainsKey(tileName)) return;
 
-        var rules = TileRuleLookup.TileRulesDictionary.GetValueOrDefault(spriteName);
+        var rules = TileRuleLookup.TileRulesDictionary.GetValueOrDefault(tileName);
 
         // update north neighbor
         if (tileN != null)
         {
-            Tile tileNComp = tileN.GetComponent<Tile>();
-            if (tileNComp != null)
-            {
-                string code = rules?.NORTH;
-                tileNComp.validOptions = tileNComp.validOptions
-                    .Where(option => TileRuleLookup.TileRulesDictionary[option.name].SOUTH == code)
-                    .ToList();
-                tileNComp.entropy = tileNComp.validOptions.Count;
-            }
+            string code = rules.NORTH;
+            tileN.validOptions = tileN.validOptions
+                .Where(option => TileRuleLookup.TileRulesDictionary[option.name].SOUTH == code)
+                .ToList();
+            tileN.entropy = tileN.validOptions.Count;
         }
 
         // update east neighbor
         if (tileE != null)
         {
-            Tile tileEComp = tileE.GetComponent<Tile>();
-            if (tileEComp != null)
-            {
-                string code = rules?.EAST;
-                tileEComp.validOptions = tileEComp.validOptions
-                    .Where(option => TileRuleLookup.TileRulesDictionary[option.name].WEST == code)
-                    .ToList();
-                tileEComp.entropy = tileEComp.validOptions.Count;
-            }
+            string code = rules.EAST;
+            tileE.validOptions = tileE.validOptions
+                .Where(option => TileRuleLookup.TileRulesDictionary[option.name].WEST == code)
+                .ToList();
+            tileE.entropy = tileE.validOptions.Count;
         }
 
         // update south neighbor
         if (tileS != null)
         {
-            Tile tileSComp = tileS.GetComponent<Tile>();
-            if (tileSComp != null)
-            {
-                string code = rules?.SOUTH;
-                tileSComp.validOptions = tileSComp.validOptions
-                    .Where(option => TileRuleLookup.TileRulesDictionary[option.name].NORTH == code)
-                    .ToList();
-                tileSComp.entropy = tileSComp.validOptions.Count;
-            }
+            string code = rules.SOUTH;
+            tileS.validOptions = tileS.validOptions
+                .Where(option => TileRuleLookup.TileRulesDictionary[option.name].NORTH == code)
+                .ToList();
+            tileS.entropy = tileS.validOptions.Count;
         }
 
         // update west neighbor
         if (tileW != null)
         {
-            Tile tileWComp = tileW.GetComponent<Tile>();
-            if (tileWComp != null)
-            {
-                string code = rules?.WEST;
-                tileWComp.validOptions = tileWComp.validOptions
-                    .Where(option => TileRuleLookup.TileRulesDictionary[option.name].EAST == code)
-                    .ToList();
-                tileWComp.entropy = tileWComp.validOptions.Count;
-            }
+            string code = rules.WEST;
+            tileW.validOptions = tileW.validOptions
+                .Where(option => TileRuleLookup.TileRulesDictionary[option.name].EAST == code)
+                .ToList();
+            tileW.entropy = tileW.validOptions.Count;
         }
+
     }
 
-    public List<GameObject> FindLowestEntropy()
+    // get a list of candidates for next collapse
+    public List<TileData> FindLowestEntropy()
     {
-        List<GameObject> candidates = new List<GameObject>();
-        int lowestEntropy = allSprites.Count;
+        List<TileData> candidates = new List<TileData>();
+        int lowestEntropy = allTiles.Count;
 
         for (int x = 0; x < grid.GetLength(0); x++)
         {
             for (int y = 0; y < grid.GetLength(1); y++)
             {
-                Tile tile = grid[x, y].GetComponent<Tile>();
-                if (tile != null && !tile.isCollapsed && tile.validOptions.Count >= 1)
+                TileData tileData = grid[x, y];
+
+                // only consider tiles that aren't collapsed and don't have entropy 0
+                if (tileData != null && !tileData.isCollapsed && tileData.entropy >= 1)
                 {
-                    int tileEntropy = tile.entropy;
+                    int tileEntropy = tileData.entropy;
                     if (tileEntropy < lowestEntropy)
                     {
                         lowestEntropy = tileEntropy;
                         candidates.Clear();
-                        candidates.Add(grid[x, y]);
-                    }
-                    else if (tileEntropy == lowestEntropy)
+                        candidates.Add(tileData);
+                    } else if (tileEntropy == lowestEntropy)
                     {
-                        candidates.Add(grid[x, y]);
+                        candidates.Add(tileData);
                     }
                 }
             }
@@ -217,19 +196,22 @@ public class GridManager : MonoBehaviour
         return candidates;
     }
 
+    private TileBase PickRandomTileBase(List<TileBase> tiles)
+    {
+        return tiles[Random.Range(0, tiles.Count)];
+    }
+
     public void StartBuildMap()
     {
         StartCoroutine(BuildMapCoroutine());
     }
 
-    private IEnumerator BuildMapCoroutine()
+    public IEnumerator BuildMapCoroutine()
     {
-        DestroyGrid();
-        InitializeGrid();
-        ResetTiles();
-        CollapseRandom();
+        InitializeDataGrid();
+        InitializeTilemap();
 
-        cc.SetResetPosition(grid.GetLength(0), grid.GetLength(1));
+        cc.SetResetPosition(gridWidth / 2f, gridHeight / 2f);
         cc.ResetCamera();
 
         bool gridChanged = true;
@@ -237,25 +219,23 @@ public class GridManager : MonoBehaviour
         {
             gridChanged = false;
 
-            List<GameObject> candidates = FindLowestEntropy();
+            List<TileData> candidates = FindLowestEntropy();
 
-            if (candidates.Count == 0)
-                break;
+            if (candidates.Count == 0) break;
 
-            GameObject tileToCollapse = candidates[Random.Range(0, candidates.Count)];
-            Tile tileComponent = tileToCollapse.GetComponent<Tile>();
+            TileData tileToCollapse = candidates[Random.Range(0, candidates.Count)];
 
-            if (!tileComponent.isCollapsed)
+            if (!tileToCollapse.isCollapsed)
             {
-                tileComponent.CollapseTile();
+                CollapseTile(tileToCollapse);
                 UpdateNeighbors(tileToCollapse);
                 gridChanged = true;
             }
 
-            yield return new WaitForSeconds(0.01f);
+            yield return new WaitForSeconds(0.01f); // change the speed of tile propagation
         }
-
     }
+
 }
 
 // dev hacks for editor
@@ -272,6 +252,10 @@ public class GridEditor : Editor
         if (GUILayout.Button("Generate Map"))
         {
             myScript.StartBuildMap();
+        }
+        if (GUILayout.Button("Clear Tilemap"))
+        {
+            myScript.tilemap.ClearAllTiles();
         }
     }
 }

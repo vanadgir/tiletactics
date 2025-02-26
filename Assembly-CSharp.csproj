@@ -64,6 +64,7 @@
     <Compile Include="Assets\Scripts\Tile.cs" />
     <Compile Include="Assets\Scripts\GridManager.cs" />
     <Compile Include="Assets\Input\CameraControls.cs" />
+    <Compile Include="Assets\Scripts\TileData.cs" />
     <Compile Include="Assets\Scripts\TileRules.cs" />
     <Compile Include="Assets\Scripts\CameraController.cs" />
   </ItemGroup>

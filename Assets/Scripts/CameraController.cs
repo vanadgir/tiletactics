@@ -8,7 +8,7 @@ public class CameraController : MonoBehaviour
     private float zoomInput;
 
     [SerializeField] private float moveSpeed = 15f;
-    [SerializeField] private float zoomSpeed = 10f;
+    [SerializeField] private float zoomSpeed = 25f;
     [SerializeField] private float resetZoom = 5f;
 
     private Vector3 resetPosition;
@@ -30,7 +30,7 @@ public class CameraController : MonoBehaviour
 
         controls.Enable();
 
-        SetResetPosition(GridManager.Instance.grid.GetLength(0), GridManager.Instance.grid.GetLength(1));
+        SetResetPosition(GridManager.Instance.gridWidth/2f, GridManager.Instance.gridHeight/2f);
     }
 
     private void OnDisable()
@@ -39,6 +39,11 @@ public class CameraController : MonoBehaviour
         {
             controls.Disable();
         }
+    }
+
+    public void SetResetPosition(float x, float y)
+    {
+        resetPosition = new Vector3(x, y, -10);
     }
 
     private void Start()
@@ -59,12 +64,6 @@ public class CameraController : MonoBehaviour
                 cam.orthographicSize = Mathf.Clamp(cam.orthographicSize, 2f, 20f);
             }
         }
-    }
-
-    public void SetResetPosition(int width, int height)
-    {
-        var gridScale = GridManager.Instance.gridScale;
-        resetPosition = new Vector3(width / 2f * gridScale, height / 2f * gridScale, -10);
     }
 
     public void ResetCamera()
