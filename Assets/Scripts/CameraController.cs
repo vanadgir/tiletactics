@@ -30,10 +30,7 @@ public class CameraController : MonoBehaviour
 
         controls.Enable();
 
-        var gridWidth = GridManager.Instance.gridWidth;
-        var gridHeight = GridManager.Instance.gridHeight;
-        var gridScale = GridManager.Instance.gridScale;
-        resetPosition = new Vector3(gridWidth / 2f * gridScale, gridHeight / 2f * gridScale, -10);
+        SetResetPosition(GridManager.Instance.grid.GetLength(0), GridManager.Instance.grid.GetLength(1));
     }
 
     private void OnDisable()
@@ -64,7 +61,13 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    private void ResetCamera()
+    public void SetResetPosition(int width, int height)
+    {
+        var gridScale = GridManager.Instance.gridScale;
+        resetPosition = new Vector3(width / 2f * gridScale, height / 2f * gridScale, -10);
+    }
+
+    public void ResetCamera()
     {
         transform.position = resetPosition;
         cam.orthographicSize = resetZoom;

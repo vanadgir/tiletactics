@@ -26,7 +26,9 @@ public class GridManager : MonoBehaviour
     [Header("Sprites")]
     public List<Sprite> allSprites; // drag the 100 sliced sprites in editor
 
-    private GameObject[,] grid;
+    public GameObject[,] grid { get; private set; }
+
+    private CameraController cc;
 
     private void Awake()
     {
@@ -39,6 +41,8 @@ public class GridManager : MonoBehaviour
             Destroy(gameObject);
         }
 
+        cc = Camera.main.GetComponent<CameraController>();
+
         InitializeGrid();
     }
 
@@ -49,7 +53,7 @@ public class GridManager : MonoBehaviour
     }
 
 
-    private void InitializeGrid()
+    public void InitializeGrid()
     {
         grid = new GameObject[gridWidth, gridHeight];
 
@@ -68,11 +72,25 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    public void ResetGrid()
+    public void DestroyGrid()
     {
-        for (int x = 0; x < gridWidth; x++)
+        for (int x = 0; x < grid.GetLength(0); x++)
         {
-            for (int y = 0; y < gridHeight; y++)
+            for (int y = 0; y < grid.GetLength(1); y++)
+            {
+                GameObject go = grid[x, y];
+                if (go != null)
+                {
+                    Destroy(go);
+                }
+            }
+        }
+    }
+    public void ResetTiles()
+    {
+        for (int x = 0; x < grid.GetLength(0); x++)
+        {
+            for (int y = 0; y < grid.GetLength(1); y++)
             {
                 GameObject go = grid[x, y];
                 if (go != null)
@@ -85,8 +103,8 @@ public class GridManager : MonoBehaviour
 
     private void CollapseRandom()
     {
-        int randomX = Random.Range(0, gridWidth);
-        int randomY = Random.Range(0, gridHeight);
+        int randomX = Random.Range(0, grid.GetLength(0));
+        int randomY = Random.Range(0, grid.GetLength(1));
 
         GameObject go = grid[randomX, randomY];
 
@@ -100,8 +118,8 @@ public class GridManager : MonoBehaviour
         SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
 
         // neighbor will be null if at the bounds of grid
-        GameObject tileN = tile.gridPos.y < gridHeight - 1 ? grid[tile.gridPos.x, tile.gridPos.y + 1] : null;
-        GameObject tileE = tile.gridPos.x < gridWidth - 1 ? grid[tile.gridPos.x + 1, tile.gridPos.y] : null;
+        GameObject tileN = tile.gridPos.y < grid.GetLength(1)-1 ? grid[tile.gridPos.x, tile.gridPos.y + 1] : null;
+        GameObject tileE = tile.gridPos.x < grid.GetLength(0)-1 ? grid[tile.gridPos.x + 1, tile.gridPos.y] : null;
         GameObject tileS = tile.gridPos.y > 0 ? grid[tile.gridPos.x, tile.gridPos.y - 1] : null;
         GameObject tileW = tile.gridPos.x > 0 ? grid[tile.gridPos.x - 1, tile.gridPos.y] : null;
 
@@ -174,9 +192,9 @@ public class GridManager : MonoBehaviour
         List<GameObject> candidates = new List<GameObject>();
         int lowestEntropy = allSprites.Count;
 
-        for (int x = 0; x < gridWidth; x++)
+        for (int x = 0; x < grid.GetLength(0); x++)
         {
-            for (int y = 0; y < gridHeight; y++)
+            for (int y = 0; y < grid.GetLength(1); y++)
             {
                 Tile tile = grid[x, y].GetComponent<Tile>();
                 if (tile != null && !tile.isCollapsed && tile.validOptions.Count >= 1)
@@ -206,8 +224,13 @@ public class GridManager : MonoBehaviour
 
     private IEnumerator BuildMapCoroutine()
     {
-        ResetGrid();
-        CollapseRandom(); 
+        DestroyGrid();
+        InitializeGrid();
+        ResetTiles();
+        CollapseRandom();
+
+        cc.SetResetPosition(grid.GetLength(0), grid.GetLength(1));
+        cc.ResetCamera();
 
         bool gridChanged = true;
         while (gridChanged)
