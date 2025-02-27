@@ -17,15 +17,6 @@ TextureImporter:
   - first:
       213: 1781041388911333587
     second: emptytile_4
-  - first:
-      213: 6810806175275487120
-    second: emptytile_5
-  - first:
-      213: 3617757513917487377
-    second: emptytile_6
-  - first:
-      213: 3659593631031061264
-    second: emptytile_7
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -151,9 +142,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 56
-        width: 8
-        height: 8
+        y: 47
+        width: 17
+        height: 17
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -172,10 +163,10 @@ TextureImporter:
       name: emptytile_1
       rect:
         serializedVersion: 2
-        x: 56
-        y: 56
-        width: 8
-        height: 8
+        x: 15
+        y: 15
+        width: 34
+        height: 34
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -194,10 +185,10 @@ TextureImporter:
       name: emptytile_2
       rect:
         serializedVersion: 2
-        x: 15
-        y: 35
-        width: 14
-        height: 14
+        x: 47
+        y: 47
+        width: 17
+        height: 17
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -216,10 +207,10 @@ TextureImporter:
       name: emptytile_3
       rect:
         serializedVersion: 2
-        x: 35
-        y: 35
-        width: 14
-        height: 14
+        x: 0
+        y: 0
+        width: 17
+        height: 17
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -238,10 +229,10 @@ TextureImporter:
       name: emptytile_4
       rect:
         serializedVersion: 2
-        x: 15
-        y: 14
-        width: 14
-        height: 15
+        x: 47
+        y: 0
+        width: 17
+        height: 17
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -252,72 +243,6 @@ TextureImporter:
       bones: []
       spriteID: 3d01454f4b787b810800000000000000
       internalID: 1781041388911333587
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: emptytile_5
-      rect:
-        serializedVersion: 2
-        x: 35
-        y: 14
-        width: 14
-        height: 15
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 09f05579128d48e50800000000000000
-      internalID: 6810806175275487120
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: emptytile_6
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 8
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 1195d8c8a4bd43230800000000000000
-      internalID: 3617757513917487377
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: emptytile_7
-      rect:
-        serializedVersion: 2
-        x: 56
-        y: 0
-        width: 8
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 01b63ef940d79c230800000000000000
-      internalID: 3659593631031061264
       vertices: []
       indices: 
       edges: []
@@ -341,9 +266,6 @@ TextureImporter:
       emptytile_2: 5540987178108145306
       emptytile_3: -5885917609501496226
       emptytile_4: 1781041388911333587
-      emptytile_5: 6810806175275487120
-      emptytile_6: 3617757513917487377
-      emptytile_7: 3659593631031061264
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,19 +1,10 @@
 fileFormatVersion: 2
-guid: 7c6f61fb1961d5d40952eab37a95649e
+guid: 0172afa5a0e9077408ca5dd9b2c8a81a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5377449956357914272
-    second: SelectedTile_0
-  - first:
-      213: 8876355807824901010
-    second: SelectedTile_1
-  - first:
-      213: -2885737984432214398
-    second: SelectedTile_2
-  - first:
-      213: -3224172504371547831
-    second: SelectedTile_3
+      213: -193560767653731935
+    second: RedTile_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -135,57 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: SelectedTile_0
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 47
-        width: 17
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 061c8d171c57f55b0800000000000000
-      internalID: -5377449956357914272
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: SelectedTile_1
-      rect:
-        serializedVersion: 2
-        x: 47
-        y: 47
-        width: 17
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 293f06904962f2b70800000000000000
-      internalID: 8876355807824901010
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: SelectedTile_2
+      name: RedTile_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 17
-        height: 17
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -194,30 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 28ee01ba79cc3f7d0800000000000000
-      internalID: -2885737984432214398
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: SelectedTile_3
-      rect:
-        serializedVersion: 2
-        x: 47
-        y: 0
-        width: 17
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 9413a5e80307143d0800000000000000
-      internalID: -3224172504371547831
+      spriteID: 1a12c81e185505df0800000000000000
+      internalID: -193560767653731935
       vertices: []
       indices: 
       edges: []
@@ -236,10 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      SelectedTile_0: -5377449956357914272
-      SelectedTile_1: 8876355807824901010
-      SelectedTile_2: -2885737984432214398
-      SelectedTile_3: -3224172504371547831
+      RedTile_0: -193560767653731935
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

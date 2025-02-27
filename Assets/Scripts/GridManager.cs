@@ -20,11 +20,19 @@ public class GridManager : MonoBehaviour
 
     [Space(20)]
     [Header("Tilemap Settings")]
+    // assign these in editor
     public Tilemap tilemap;
+    public Tilemap gridTilemap;
+    public Tilemap walkbilityTilemap;
+    public Tilemap gridUI;
     public TileBase emptyTile;
-    public List<TileBase> allTiles; // drag all the Tiles into editor here
+    public TileBase selectedTile;
+    public TileBase redTile;
+    public TileBase greenTile;
+    public List<TileBase> allTiles;
 
     private TileData[,] grid;
+    private string[,] gameGrid;
 
     CameraController cc;
 
@@ -49,9 +57,11 @@ public class GridManager : MonoBehaviour
 
     // this is the grid of tile metadata
     // needed for WFC, maybe for resources and other gameplay
-    private void InitializeDataGrid()
+    private void InitializeTileData()
     {
         grid = new TileData[gridWidth, gridHeight];
+
+        gameGrid = new string[gridWidth * 2, gridHeight * 2];
 
         for (int x = 0; x < grid.GetLength(0); x++)
         {
@@ -64,8 +74,7 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    // this is Unity's tilemap and renderer
-    // primarily for visuals
+    // this is the world tilemap, primarily for visuals
     private void InitializeTilemap()
     {
         tilemap.ClearAllTiles();
@@ -81,6 +90,55 @@ public class GridManager : MonoBehaviour
                 {
                     tileData.SetName(emptyTile.name);
                     tileData.SetQuadrantsFromName(emptyTile.name);
+                }
+            }
+        }
+    }
+
+    // this is the gameplay tilemap
+    // 4 of these inside 1 visual tile
+    private void InitializeGameGrid()
+    {
+        for (int x = 0; x < grid.GetLength(0); x++)
+        {
+            for (int y = 0; y < grid.GetLength(1); y++)
+            {
+                string[,] quadrants = grid[x, y].quadrants;
+
+                gameGrid[2 * x, 2 * y + 1] = quadrants[0, 0] != "" ? quadrants[0, 0]: "0"; // top left
+                gameGrid[2 * x, 2 * y] = quadrants[1, 0] != "" ? quadrants[1, 0] : "0"; // bottom left
+                gameGrid[2 * x + 1, 2 * y + 1] = quadrants[0, 1] != "" ? quadrants[0, 1] : "0"; // top right
+                gameGrid[2 * x + 1, 2 * y] = quadrants[1, 1] != "" ? quadrants[1, 1] : "0"; // bottom right
+            }
+        }
+
+    }
+
+    private void MakeWalkabilityGrid()
+    {
+        for (int x = 0; x < gameGrid.GetLength(0); x++)
+        {
+            for (int y = 0; y < gameGrid.GetLength(1); y++)
+            {
+                string resource = gameGrid[x, y];
+
+                switch (resource)
+                {
+                    case "G":
+                        walkbilityTilemap.SetTile(new Vector3Int(x, y, 0), greenTile);
+                        break;
+                    case "S":
+                        walkbilityTilemap.SetTile(new Vector3Int(x, y, 0), greenTile);
+                        break;
+                    case "B":
+                        walkbilityTilemap.SetTile(new Vector3Int(x, y, 0), redTile);
+                        break;
+                    case "W":
+                        walkbilityTilemap.SetTile(new Vector3Int(x, y, 0), redTile);
+                        break;
+                    default:
+                        walkbilityTilemap.SetTile(new Vector3Int(x, y, 0), redTile);
+                        break;
                 }
             }
         }
@@ -208,10 +266,12 @@ public class GridManager : MonoBehaviour
 
     public IEnumerator BuildMapCoroutine()
     {
-        InitializeDataGrid();
+        walkbilityTilemap.ClearAllTiles();
+
+        InitializeTileData();
         InitializeTilemap();
 
-        cc.SetResetPosition(gridWidth / 2f, gridHeight / 2f);
+        cc.SetResetPosition(gridWidth, gridHeight);
         cc.ResetCamera();
 
         bool gridChanged = true;
@@ -233,6 +293,38 @@ public class GridManager : MonoBehaviour
             }
 
             yield return new WaitForSeconds(0.01f); // change the speed of tile propagation
+        }
+
+        InitializeGameGrid();
+        MakeWalkabilityGrid();
+    }
+
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            HandleMouseClick();
+        }
+    }
+
+    private void HandleMouseClick()
+    {
+        Vector3 worldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3Int gridPosition = gridTilemap.WorldToCell(worldPosition);
+
+        if (gridPosition.x >= 0 && gridPosition.x < gridWidth*2 && gridPosition.y >= 0 && gridPosition.y < gridHeight*2)
+        {
+            gridUI.ClearAllTiles();
+            gridUI.SetTile(gridPosition, selectedTile);
+
+            Debug.Log($"clicked on grid {gridPosition.x}, {gridPosition.y}");
+
+            string resource = gameGrid[gridPosition.x, gridPosition.y];
+            if (resource != null)
+            {
+                Debug.Log(resource);
+            }
+            
         }
     }
 
@@ -256,6 +348,11 @@ public class GridEditor : Editor
         if (GUILayout.Button("Clear Tilemap"))
         {
             myScript.tilemap.ClearAllTiles();
+        }
+        if (GUILayout.Button("Toggle Walkability Grid"))
+        {
+            bool visibility = myScript.walkbilityTilemap.gameObject.activeSelf;
+            myScript.walkbilityTilemap.gameObject.SetActive(!visibility);
         }
     }
 }

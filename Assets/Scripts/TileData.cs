@@ -13,7 +13,7 @@ public class TileData
     public int entropy;
     public bool isCollapsed;
 
-    public bool isOnScreen;
+    public bool isSelected;
 
     public TileData (int x, int y)
     {
@@ -29,6 +29,7 @@ public class TileData
         validOptions = GridManager.Instance.allTiles;
         entropy = validOptions.Count;
         isCollapsed = false;
+        isSelected = false;
     }
 
     public void SetName(string name)
