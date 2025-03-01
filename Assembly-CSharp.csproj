@@ -61,9 +61,10 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.0.39f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\GridManager.cs" />
+    <Compile Include="Assets\Scripts\GameTile.cs" />
     <Compile Include="Assets\Input\CameraControls.cs" />
-    <Compile Include="Assets\Scripts\TileData.cs" />
+    <Compile Include="Assets\Scripts\WorldTile.cs" />
+    <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\TileRules.cs" />
     <Compile Include="Assets\Scripts\CameraController.cs" />
   </ItemGroup>

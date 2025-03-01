@@ -30,7 +30,7 @@ public class CameraController : MonoBehaviour
 
         controls.Enable();
 
-        SetResetPosition(GridManager.Instance.gridWidth, GridManager.Instance.gridHeight);
+        SetResetPosition(GameManager.Instance.WorldWidth, GameManager.Instance.WorldHeight);
     }
 
     private void OnDisable()
